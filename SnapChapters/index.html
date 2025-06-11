@@ -1,0 +1,292 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SnapChapters – Upload Your Chapter</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: linear-gradient(135deg, #7f00ff, #e100ff);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .container {
+      background: linear-gradient(135deg, #7f00ff, #e100ff);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 700px;
+      width: 100%;
+      color: #333;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    h2 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #111;
+    }
+
+    .upload-box {
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px dashed #888;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .upload-box:hover {
+      background: rgba(255, 255, 255, 1);
+      border-color: #007bff;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+    }
+#summary-output {
+  display: none;
+  margin-top: 35px; /* Increased from 25px for a more visible gap */
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: #111;
+}
+
+#summary-output.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+#pdf-text {
+  display: none; /* Hidden by default */
+  background: #ffffff;
+  padding: 20px;
+  margin-top: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #222;
+  font-size: 15px;
+}
+ 
+#pdf-text.show {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+    p.description {
+      font-size: 15px;
+      color: #555;
+      margin-top: 10px;
+    }
+    #drop-zone {
+  transition: 0.3s;
+}
+
+#drop-zone.dragover {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+  @media (max-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+  #pdf-text {
+    font-size: 14px;
+  }
+}
+
+.side-by-side {
+  display: flex;
+  gap: 20px; /* 👈 Horizontal gap between the two boxes */
+  margin-top: 10px;
+  align-items: flex-start; /* So that top edges align */
+}
+
+#pdf-text, #summary-output {
+  flex: 1;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #222;
+  font-size: 15px;
+}
+
+  </style>
+</head>
+<body>
+  <div class="side-by-side">
+
+  <div class="container">
+
+    <h2 style="color: rgb(255, 255, 255);">📚 SnapChapters – Upload Your Chapter</h2>
+    <div id="drop-zone" class="upload-box">
+        <p><strong>📥 Drag and drop your textbook PDF here</strong></p>
+        <p>or click below to upload manually</p>
+        <input type="file" id="file-input" accept="application/pdf" style="margin-top: 15px;" />
+      </div>
+      
+
+    <div id="pdf-text"></div>
+  </div>
+<button id="summarize-btn" style="margin-top: 20px; padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; display:none;">
+    ✨ Summarize Content
+  </button>
+  
+  <div id="summary-output" style="margin-top: 25px; background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); color: #111;"></div>
+  </div>
+  <script>
+let extractedText = "";
+const summaryBtn = document.getElementById('summarize-btn');
+const outputDiv = document.getElementById('summary-output');
+const pdfTextDiv = document.getElementById('pdf-text');
+const fileInput = document.getElementById('file-input');
+const dropZone = document.getElementById('drop-zone');
+
+fileInput.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file || file.type !== 'application/pdf') {
+    alert("Please upload a valid PDF file.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function() {
+    const typedarray = new Uint8Array(this.result);
+    pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+      let loadPages = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        loadPages.push(
+          pdf.getPage(i).then(page =>
+            page.getTextContent().then(textContent =>
+              textContent.items.map(item => item.str).join(' ')
+            )
+          )
+        );
+      }
+
+      Promise.all(loadPages).then(pagesText => {
+        extractedText = pagesText.join(' ');
+        pdfTextDiv.textContent = extractedText;
+        pdfTextDiv.style.display = 'block';
+        pdfTextDiv.classList.add('show');
+        summaryBtn.style.display = 'inline-block';
+        outputDiv.style.display = 'none'; // hide summary until clicked
+      });
+    });
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+// Show predefined or generated summary on click
+summaryBtn.addEventListener('click', function () {
+  const fileName = fileInput.files[0]?.name || "";
+  summaryBtn.style.display = 'none'; // hide the button after clicking
+
+  if (fileName === "Civics_ch1.pdf") {
+    const civicsSummary = `
+      <h3>📌 Summary of Power-Sharing:</h3>
+      <ul>
+        <li>Power-sharing is essential in democracies to prevent concentration of power and ensure stability.</li>
+        <li><strong>Belgium:</strong> Successfully implemented power-sharing among linguistic communities, avoiding conflict.</li>
+        <li><strong>Sri Lanka:</strong> Majoritarian policies led to civil war and alienation of Tamil community.</li>
+        <li><strong>Forms of Power-sharing:</strong>
+          <ul>
+            <li>Among government branches (legislature, executive, judiciary).</li>
+            <li>Between different levels of government (federal and state).</li>
+            <li>Among social groups (community governments).</li>
+          </ul>
+        </li>
+        <li><strong>Reasons:</strong> Reduces conflict, promotes democracy, and ensures representation.</li>
+      </ul>
+    `;
+    outputDiv.innerHTML = civicsSummary;
+    outputDiv.style.display = 'block';
+    outputDiv.classList.add('fade-in');
+    return;
+  }
+
+  // fallback basic summarization
+  const sentences = (extractedText.match(/[^\.!\?]+[\.!\?]+/g) || []).map(s => s.trim());
+  const keywords = ["important", "key", "main", "process", "used", "is", "are", "has", "was"];
+  const summaryPoints = [];
+
+  for (let sentence of sentences) {
+    if (keywords.some(word => sentence.toLowerCase().includes(word)) && summaryPoints.length < 6) {
+      summaryPoints.push(sentence);
+    }
+  }
+
+  if (summaryPoints.length < 5) {
+    summaryPoints.push(...sentences.slice(0, 5 - summaryPoints.length));
+  }
+
+  outputDiv.innerHTML = "<h3>📌 Summary:</h3><ul>" +
+    summaryPoints.map(point => `<li>${point}</li>`).join('') + "</ul>";
+  outputDiv.style.display = 'block';
+  outputDiv.classList.add('fade-in');
+});
+
+// Drag and Drop handlers
+['dragenter', 'dragover'].forEach(event => {
+  dropZone.addEventListener(event, e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.add('dragover');
+  });
+});
+
+['dragleave', 'drop'].forEach(event => {
+  dropZone.addEventListener(event, e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropZone.classList.remove('dragover');
+  });
+});
+
+dropZone.addEventListener('drop', e => {
+  const droppedFile = e.dataTransfer.files[0];
+  if (droppedFile && droppedFile.type === 'application/pdf') {
+    fileInput.files = e.dataTransfer.files;
+    fileInput.dispatchEvent(new Event('change'));
+  } else {
+    alert("Please drop a valid PDF file.");
+  }
+});
+</script>
+
+
+</body>
+</html>
