@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quizizz-Style Quiz Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka&display=swap" rel="stylesheet">
+  <style>
+    /* Quizizz-style UI colors & fonts */
+    body {
+      font-family: 'Fredoka', sans-serif;
+      background: linear-gradient(135deg, #7f00ff, #e100ff);      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      width: 480px;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress {
+      height: 100%;
+      background: #4caf50;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .timer {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .question {
+      font-size: 20px;
+      margin: 20px 0;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      padding: 12px 16px;
+      margin: 8px 0;
+      font-size: 16px;
+      background: #f7f7f7;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s, border-color 0.2s;
+      text-align: left;
+    }
+    .options button:hover { background: #e8f0fe; }
+    .options button.correct { background: #d4edda; border-color: #28a745; }
+    .options button.wrong { background: #f8d7da; border-color: #dc3545; }
+
+    .meme {
+      margin-top: 20px;
+    }
+    .meme img { max-width: 100%; border-radius: 8px; }
+
+    .scoreboard {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <audio id="correct-sound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg"></audio>
+  <audio id="wrong-sound" src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg"></audio>
+
+  <div class="container">
+    <div class="progress-bar"><div class="progress"></div></div>
+    <div class="timer" id="timer"></div>
+    <div class="question" id="question">Loading...</div>
+    <div class="options" id="options"></div>
+    <div class="meme" id="meme"></div>
+    <div class="scoreboard" id="scoreboard"></div>
+  </div>
+
+  <script>
+    const questions = [
+      { q: "What is power-sharing?", o: ["Sharing food", "Division of power", "Playing games", "None"], a: 1 },
+      { q: "Which country has a community government?", o: ["India", "Belgium", "Sri Lanka", "Nepal"], a: 1 },
+      { q: "Majoritarianism is seen in?", o: ["Belgium", "Canada", "Sri Lanka", "India"], a: 2 },
+      { q: "Benefit of power sharing?", o: ["Instability", "Dictatorship", "Conflict", "Democracy"], a: 3 },
+      { q: "Power shared among organs?", o: ["Horizontal", "Vertical", "Mixed", "Circular"], a: 0 },
+      // ...add more
+    ];
+    const memes = [
+      "https://i.imgflip.com/30b1gx.jpg",
+      "https://i.imgflip.com/1otk96.jpg",
+      "https://i.imgflip.com/2wifvo.jpg"
+    ];
+
+    let current = 0, score = 0, timerInterval;
+    const TIME_PER_Q = 15;
+
+    const el = {
+      progress: document.querySelector(".progress"),
+      timer: document.getElementById("timer"),
+      question: document.getElementById("question"),
+      options: document.getElementById("options"),
+      meme: document.getElementById("meme"),
+      scoreboard: document.getElementById("scoreboard"),
+      correctSnd: document.getElementById("correct-sound"),
+      wrongSnd: document.getElementById("wrong-sound")
+    };
+
+    function startTimer() {
+      let t = TIME_PER_Q;
+      el.timer.textContent = `⏱️ ${t}s`;
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        t--;
+        el.timer.textContent = `⏱️ ${t}s`;
+        if (t <= 0) { clearInterval(timerInterval); handleAnswer(null); }
+      }, 1000);
+    }
+
+    function loadQuestion() {
+      const q = questions[current];
+      el.question.textContent = `Q${current+1}. ${q.q}`;
+      el.options.innerHTML = q.o.map((opt,i) => `
+        <button onclick="handleAnswer(${i})">${opt}</button>
+      `).join('');
+      el.meme.innerHTML = "";
+      el.progress.style.width = `${(current / questions.length)*100}%`;
+      startTimer();
+      el.scoreboard.textContent = `Score: ${score}`;
+    }
+
+    function handleAnswer(index) {
+      clearInterval(timerInterval);
+      const q = questions[current];
+      const buttons = el.options.querySelectorAll("button");
+      buttons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === q.a) btn.classList.add("correct");
+        if (i === index && i !== q.a) btn.classList.add("wrong");
+      });
+
+      if (index === q.a) {
+        score += 10;
+        el.correctSnd.play();
+        showMeme();
+      } else {
+        el.wrongSnd.play();
+      }
+
+      setTimeout(() => {
+        current++;
+        if (current < questions.length) loadQuestion();
+        else showResults();
+      }, 2000);
+    }
+
+    function showMeme() {
+      const img = memes[Math.floor(Math.random()*memes.length)];
+      el.meme.innerHTML = `<img src="${img}" alt="meme">`;
+    }
+
+    function showResults() {
+      el.progress.style.width = "100%";
+      el.question.textContent = "🎉 Quiz Complete!";
+      el.options.innerHTML = "";
+      el.meme.innerHTML = "";
+      el.timer.textContent = "";
+      el.scoreboard.textContent = `Final Score: ${score} / ${questions.length*10}`;
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>

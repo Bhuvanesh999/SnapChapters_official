@@ -1,0 +1,150 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Fredoka', sans-serif;
+  background: linear-gradient(135deg, #7f00ff, #e100ff);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.container {
+  background: linear-gradient(135deg, #7f00ff, #e100ff);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 700px;
+  width: 100%;
+  color: #333;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #111;
+}
+
+.upload-box {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px dashed #888;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.upload-box:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #007bff;
+}
+
+input[type="file"] {
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+#summary-output {
+  display: none;
+  margin-top: 35px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: #111;
+}
+
+#summary-output.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+#pdf-text {
+  display: none;
+  background: #ffffff;
+  padding: 20px;
+  margin-top: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #222;
+  font-size: 15px;
+}
+
+#pdf-text.show {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+p.description {
+  font-size: 15px;
+  color: #555;
+  margin-top: 10px;
+}
+
+#drop-zone {
+  transition: 0.3s;
+}
+
+#drop-zone.dragover {
+  border-color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+@media (max-width: 600px) {
+  .container {
+    padding: 20px;
+  }
+
+  #pdf-text {
+    font-size: 14px;
+  }
+}
+
+.side-by-side {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  align-items: flex-start;
+}
+
+#pdf-text, #summary-output {
+  flex: 1;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  color: #222;
+  font-size: 15px;
+}
+
+#summarize-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: none;
+}
