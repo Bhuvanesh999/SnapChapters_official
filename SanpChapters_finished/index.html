@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SnapChapters</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+  <link rel="icon" type="image/png" href="logo.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="side-by-side">
+    <div class="container">
+      <h2>📚 SnapChapters – Upload Your Chapter</h2>
+      <div id="drop-zone" class="upload-box">
+        <p><strong>📥 Drag and drop your textbook PDF here</strong></p>
+        <p>or click below to upload manually</p>
+        <input type="file" id="file-input" accept="application/pdf" style="margin-top: 15px;" />
+      </div>
+      <div id="pdf-text"></div>
+    </div>
+
+    <div>
+      <button id="summarize-btn" style="margin-top: 20px; padding: 10px 20px; font-size: 16px; background: #007bff; color: white; border: none; border-radius: 15px; cursor: pointer; display: none;">
+        ✨ Summarize Content
+      </button>
+
+      <div id="summary-output"></div>
+
+      <button id="after-summary-btn" class="button" style="margin-top: 20px; display: none;">
+        Generate Video
+      </button>
+      <button id="quiz-unlock-btn" class="button" style="margin-top: 20px; display: none;">
+        Take Quiz
+      </button>
+
+    </div>
+  </div>
+  <script src="script.js"></script>
+
+</body>
+</html>

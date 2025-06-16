@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+body {
+  overflow-x: hidden;
+  background: #7f00ff;
+}
+.start_btn,
+.info_box,
+.quiz_box,
+.result_box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.info_box.activeInfo,
+.quiz_box.activeQuiz,
+.result_box.activeResult {
+  opacity: 1;
+  z-index: 5;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) scale(1);
+}
+.start_btn button {
+  font-size: 25px;
+  font-weight: 500;
+  color: #7f00ff;
+  padding: 15px 30px;
+  outline: none;
+  border: none;
+  border-radius: 5px;
+  background: #fff;
+  cursor: pointer;
+}
+.info_box {
+  max-width: 500px;
+  width: 95%;
+  background: #fff;
+  border-radius: 5px;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.info_box .info-title {
+  height: 60px;
+  width: 100%;
+  border-bottom: 1px solid lightgrey;
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  border-radius: 5px 5px 0 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+.info_box .info-list {
+  padding: 15px 30px;
+}
+.info_box .info-list .info {
+  margin: 5px 0;
+  font-size: 17px;
+}
+.info_box .info-list .info span {
+  font-weight: 600;
+  color: #7f00ff;
+}
+.info_box .buttons {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 30px;
+  border-top: 1px solid lightgrey;
+}
+.info_box .buttons button {
+  margin: 0 5px;
+  height: 40px;
+  width: 100px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  border: 1px solid #7f00ff;
+  transition: all 0.3s ease;
+}
+.quiz_box {
+  max-width: 500px;
+  width: 95%;
+  background: #fff;
+  border-radius: 5px;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.quiz_box header {
+  position: relative;
+  z-index: 2;
+  height: 70px;
+  padding: 0 30px;
+  background: #fff;
+  border-radius: 5px 5px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0px 3px 5px 1px rgba(0, 0, 0, 0.1);
+}
+.quiz_box header .title {
+  font-size: 20px;
+  font-weight: 600;
+}
+.quiz_box header .timer {
+  color: #004085;
+  background: #cce5ff;
+  border: 1px solid #b8daff;
+  height: 45px;
+  padding: 0 8px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 145px;
+}
+.quiz_box header .timer .time_left_txt {
+  font-weight: 400;
+  font-size: 17px;
+  user-select: none;
+}
+.quiz_box header .timer .timer_sec {
+  font-size: 18px;
+  font-weight: 500;
+  height: 30px;
+  width: 45px;
+  color: #fff;
+  border-radius: 5px;
+  line-height: 30px;
+  text-align: center;
+  background: #343a40;
+  border: 1px solid #343a40;
+  user-select: none;
+}
+.quiz_box header .time_line {
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  height: 3px;
+  background: #7f00ff;
+}
+section {
+  padding: 25px 30px 20px 30px;
+  background: #fff;
+}
+section .que_text {
+  font-size: 25px;
+  font-weight: 600;
+}
+section .option_list {
+  padding: 20px 0px;
+  display: block;
+}
+section .option_list .option {
+  background: aliceblue;
+  border: 1px solid #84c5fe;
+  border-radius: 5px;
+  padding: 8px 15px;
+  font-size: 17px;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+section .option_list .option:last-child {
+  margin-bottom: 0px;
+}
+section .option_list .option:hover {
+  color: #004085;
+  background: #cce5ff;
+  border: 1px solid #b8daff;
+}
+section .option_list .option.correct {
+  color: #155724;
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+section .option_list .option.incorrect {
+  color: #721c24;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+}
+section .option_list .option.disabled {
+  pointer-events: none;
+}
+section .option_list .option .icon {
+  height: 26px;
+  width: 26px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  text-align: center;
+  font-size: 13px;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  line-height: 24px;
+}
+.option_list .option .icon.tick {
+  color: #23903c;
+  border-color: #23903c;
+  background: #d4edda;
+}
+.option_list .option .icon.cross {
+  color: #a42834;
+  background: #f8d7da;
+  border-color: #a42834;
+}
+footer {
+  height: 60px;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid lightgrey;
+}
+footer .total_que span {
+  display: flex;
+  user-select: none;
+}
+footer .total_que span p {
+  font-weight: 500;
+  padding: 0 5px;
+}
+footer .total_que span p:first-child {
+  padding-left: 0px;
+}
+footer button {
+  height: 40px;
+  padding: 0 13px;
+  font-size: 18px;
+  font-weight: 400;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  color: #fff;
+  border-radius: 5px;
+  background: #7f00ff;
+  border: 1px solid #7f00ff;
+  line-height: 10px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.95);
+  transition: all 0.3s ease;
+}
+footer button:hover {
+  background: #0263ca;
+}
+footer button.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+.result_box {
+  background: #fff;
+  border-radius: 5px;
+  display: flex;
+  padding: 25px 30px;
+  max-width: 400px;
+  width: 95%;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  transform: translate(-50%, -50%) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+.result_box .icon {
+  font-size: 100px;
+  color: #7f00ff;
+  margin-bottom: 10px;
+}
+.result_box .complete_text {
+  font-size: 20px;
+  font-weight: 500;
+}
+.result_box .score_text span {
+  display: flex;
+  margin: 10px 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+.result_box .score_text span p {
+  padding: 0 4px;
+  font-weight: 600;
+}
+.result_box .buttons {
+  display: flex;
+  margin: 20px 0;
+}
+.result_box .buttons button {
+  margin: 0 10px;
+  height: 45px;
+  padding: 0 20px;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  border-radius: 5px;
+  border: 1px solid #7f00ff;
+  transition: all 0.3s ease;
+}
+.buttons button.restart {
+  color: #fff;
+  background: #7f00ff;
+}
+.buttons button.restart:hover {
+  background: #0263ca;
+}
+.buttons button.quit {
+  color: #7f00ff;
+  background: #fff;
+}
+.buttons button.quit:hover {
+  color: #fff;
+  background: #7f00ff;
+}
+/* Responsive media query code for small devices */
+@media (max-width: 768px) {
+  section {
+    padding: 25px 15px 20px 15px;
+  }
+  .quiz_box header,
+  .info_box .info-title,
+  .info_box .buttons {
+    padding: 0 15px;
+  }
+  .result_box {
+    padding: 25px 10px;
+  }
+  .info_box .info-list {
+    padding: 15px;
+  }
+  .start_btn button {
+    font-size: 20px;
+    padding: 10px 25px;
+  }
+}
+  </style>
+</head>
+<body>
+  <!-- Start Quiz Button -->
+  <div class="start_btn"><button>Start Quiz</button></div>
+  <!-- Info Box (displayed when the quiz starts) -->
+  <div class="info_box">
+    <div class="info-title"><span>Some Rules of this Quiz</span></div>
+    <div class="info-list">
+      <div class="info">1. You will have only <span>15 seconds</span> per each question.</div>
+      <div class="info">2. Once you select your answer, it can't be undone.</div>
+      <div class="info">3. You can't select any option once time goes off.</div>
+      <div class="info">4. You can't exit from the Quiz while you're playing.</div>
+      <div class="info">5. You'll get points on the basis of your correct answers.</div>
+    </div>
+    <div class="buttons">
+      <button class="quit">Exit Quiz</button>
+      <button class="restart">Continue</button>
+    </div>
+  </div>
+  <!-- Quiz Box (main container for the quiz) -->
+  <div class="quiz_box">
+    <header>
+      <div class="title">Quiz Application</div>
+      <div class="timer">
+        <div class="time_left_txt">Time Left</div>
+        <div class="timer_sec">15</div>
+      </div>
+      <div class="time_line"></div>
+    </header>
+    <section>
+      <div class="que_text">
+        <!-- Question text will be inserted here by JavaScript -->
+      </div>
+      <div class="option_list">
+        <!-- Options will be inserted here by JavaScript -->
+      </div>
+    </section>
+    <!-- Footer of Quiz Box -->
+    <footer>
+      <div class="total_que">
+        <!-- Question count number will be inserted here by JavaScript -->
+      </div>
+      <button class="next_btn">Next</button>
+    </footer>
+  </div>
+  <!-- Result Box (displayed after completing the quiz) -->
+  <div class="result_box">
+    <div class="icon">
+      <i class="fas fa-crown"></i>
+    </div>
+    <div class="complete_text">You've completed the Quiz!</div>
+    <div class="score_text">
+      <!-- Score result will be inserted here by JavaScript -->
+    </div>
+    <div class="buttons">
+      <button class="restart">Replay Quiz</button>
+      <button class="quit">Quit Quiz</button>
+    </div>
+  </div>
+  <!-- JavaScript file for managing questions and options -->
+  <script src="js/questions.js"></script>
+  <!-- JavaScript file containing all quiz logic -->
+  <script src="js/script.js"></script>
+  <script>
+    const questions = [
+  {
+    numb: 1,
+    question: "What does HTML stand for?",
+    answer: "Hyper Text Markup Language",
+    options: [
+      "Hyper Text Preprocessor",
+      "Hyper Text Markup Language",
+      "Hyper Text Multiple Language",
+      "Hyper Tool Multi Language"
+    ]
+  },
+  {
+    numb: 2,
+    question: "What does CSS stand for?",
+    answer: "Cascading Style Sheet",
+    options: [
+      "Common Style Sheet",
+      "Colorful Style Sheet",
+      "Computer Style Sheet",
+      "Cascading Style Sheet"
+    ]
+  },
+  {
+    numb: 3,
+    question: "What does PHP stand for?",
+    answer: "Hypertext Preprocessor",
+    options: [
+      "Hypertext Preprocessor",
+      "Hypertext Programming",
+      "Hypertext Preprogramming",
+      "Hometext Preprocessor"
+    ]
+  },
+  {
+    numb: 4,
+    question: "What does SQL stand for?",
+    answer: "Structured Query Language",
+    options: [
+      "Stylish Question Language",
+      "Stylesheet Query Language",
+      "Statement Question Language",
+      "Structured Query Language"
+    ]
+  },
+  {
+    numb: 5,
+    question: "What does XML stand for?",
+    answer: "eXtensible Markup Language",
+    options: [
+      "eXtensible Markup Language",
+      "eXecutable Multiple Language",
+      "eXTra Multi-Program Language",
+      "eXamine Multiple Language"
+    ]
+  },
+];
+// Selecting all required elements
+const startBtn = document.querySelector(".start_btn button");
+const infoBox = document.querySelector(".info_box");
+const exitBtn = infoBox.querySelector(".buttons .quit");
+const continueBtn = infoBox.querySelector(".buttons .restart");
+const quizBox = document.querySelector(".quiz_box");
+const resultBox = document.querySelector(".result_box");
+const optionList = document.querySelector(".option_list");
+const timeLine = document.querySelector("header .time_line");
+const timeText = document.querySelector(".timer .time_left_txt");
+const timeCount = document.querySelector(".timer .timer_sec");
+let timeValue = 15;
+let queCount = 0;
+let queNumb = 1;
+let userScore = 0;
+let counter;
+let counterLine;
+let widthValue = 0;
+const restartQuizBtn = resultBox.querySelector(".buttons .restart");
+const quitQuizBtn = resultBox.querySelector(".buttons .quit");
+const nextBtn = document.querySelector("footer .next_btn");
+const bottomQuesCounter = document.querySelector("footer .total_que");
+// Show info box when start button is clicked
+startBtn.onclick = () => {
+  infoBox.classList.add("activeInfo");
+}
+// Hide info box when exit button is clicked
+exitBtn.onclick = () => {
+  infoBox.classList.remove("activeInfo");
+}
+// Start quiz when continue button is clicked
+continueBtn.onclick = () => {
+  infoBox.classList.remove("activeInfo");
+  quizBox.classList.add("activeQuiz");
+  initializeQuiz();
+}
+// Restart quiz when restart button is clicked
+restartQuizBtn.onclick = () => {
+  resultBox.classList.remove("activeResult");
+  quizBox.classList.add("activeQuiz");
+  resetQuiz();
+  initializeQuiz();
+}
+// Reload page when quit button is clicked
+quitQuizBtn.onclick = () => {
+  window.location.reload();
+}
+// Show next question when next button is clicked
+nextBtn.onclick = () => {
+  if (queCount < questions.length - 1) {
+    queCount++;
+    queNumb++;
+    updateQuiz();
+  } else {
+    clearInterval(counter);
+    clearInterval(counterLine);
+    showResult();
+  }
+}
+// Initialize the quiz with the first question and timers
+function initializeQuiz() {
+  showQuestions(queCount);
+  queCounter(queNumb);
+  startTimer(timeValue);
+  startTimerLine(widthValue);
+}
+// Reset quiz variables
+function resetQuiz() {
+  timeValue = 15;
+  queCount = 0;
+  queNumb = 1;
+  userScore = 0;
+  widthValue = 0;
+}
+// Update the quiz with the next question and reset timers
+function updateQuiz() {
+  showQuestions(queCount);
+  queCounter(queNumb);
+  clearInterval(counter);
+  clearInterval(counterLine);
+  startTimer(timeValue);
+  startTimerLine(widthValue);
+  timeText.textContent = "Time Left";
+  nextBtn.classList.remove("show");
+}
+// Show questions and options
+function showQuestions(index) {
+  const queText = document.querySelector(".que_text");
+  let queTag = `<span>${questions[index].numb}. ${questions[index].question}</span>`;
+  let optionTag = questions[index].options.map(option => `<div class="option"><span>${option}</span></div>`).join('');
+  queText.innerHTML = queTag;
+  optionList.innerHTML = optionTag;
+  optionList.querySelectorAll(".option").forEach(option => {
+    option.onclick = () => optionSelected(option);
+  });
+}
+// Handle option selection
+function optionSelected(answer) {
+  clearInterval(counter);
+  clearInterval(counterLine);
+  let userAns = answer.textContent;
+  let correctAns = questions[queCount].answer;
+  let allOptions = optionList.children.length;
+  if (userAns === correctAns) {
+    userScore++;
+    answer.classList.add("correct");
+    answer.insertAdjacentHTML("beforeend", tickIconTag);
+  } else {
+    answer.classList.add("incorrect");
+    answer.insertAdjacentHTML("beforeend", crossIconTag);
+    highlightCorrectAnswer(correctAns);
+  }
+  disableOptions();
+  nextBtn.classList.add("show");
+}
+// Highlight the correct answer
+function highlightCorrectAnswer(correctAns) {
+  for (let i = 0; i < optionList.children.length; i++) {
+    if (optionList.children[i].textContent === correctAns) {
+      optionList.children[i].classList.add("correct");
+      optionList.children[i].insertAdjacentHTML("beforeend", tickIconTag);
+    }
+  }
+}
+// Disable all options
+function disableOptions() {
+  for (let i = 0; i < optionList.children.length; i++) {
+    optionList.children[i].classList.add("disabled");
+  }
+}
+// Show result box
+function showResult() {
+  infoBox.classList.remove("activeInfo");
+  quizBox.classList.remove("activeQuiz");
+  resultBox.classList.add("activeResult");
+  const scoreText = resultBox.querySelector(".score_text");
+  let scoreTag = '';
+  if (userScore > 3) {
+    scoreTag = `<span>and congrats! , You got <p>${userScore}</p> out of <p>${questions.length}</p></span>`;
+  } else if (userScore > 1) {
+    scoreTag = `<span>and nice , You got <p>${userScore}</p> out of <p>${questions.length}</p></span>`;
+  } else {
+    scoreTag = `<span>and sorry , You got only <p>${userScore}</p> out of <p>${questions.length}</p></span>`;
+  }
+  scoreText.innerHTML = scoreTag;
+}
+// Start the timer for the quiz
+function startTimer(time) {
+  counter = setInterval(() => {
+    timeCount.textContent = time > 9 ? time : `0${time}`;
+    time--;
+    if (time < 0) {
+      clearInterval(counter);
+      timeText.textContent = "Time Off";
+      highlightCorrectAnswer(questions[queCount].answer);
+      disableOptions();
+      nextBtn.classList.add("show");
+    }
+  }, 1000);
+}
+function startTimerLine(time) {
+  const totalTime = 550; // Total time for the timer in milliseconds
+  counterLine = setInterval(() => {
+    time += 1;
+    let progressPercentage = (time / totalTime) * 100;
+    timeLine.style.width = `${progressPercentage}%`;
+    if (time >= totalTime) {
+      clearInterval(counterLine);
+    }
+  }, 29);
+}
+// Update the question counter
+function queCounter(index) {
+  let totalQueCounTag = `<span><p>${index}</p> of <p>${questions.length}</p> Questions</span>`;
+  bottomQuesCounter.innerHTML = totalQueCounTag;
+}
+// Tick and cross icons
+const tickIconTag = '<div class="icon tick"><i class="fas fa-check"></i></div>';
+const crossIconTag = '<div class="icon cross"><i class="fas fa-times"></i></div>';
+  </script>
+</body>
+</html>
