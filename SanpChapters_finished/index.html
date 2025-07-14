@@ -9,6 +9,30 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<!-- Startup Intro Video -->
+<div id="intro-video-overlay" style="
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: black;
+  z-index: 9999;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;">
+  
+  <video id="intro-video" autoplay muted playsinline style="
+    min-width: 100vw;
+    min-height: 100vh;
+    object-fit: cover;">
+    <source src="Video_Logo_Ready_SnapChapters (online-video-cutter.com).mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+</div>
+
+
+
   <div class="side-by-side">
     <div class="container">
       <h2>📚 SnapChapters – Upload Your Chapter</h2>
@@ -28,15 +52,138 @@
       <div id="summary-output"></div>
 
       <button id="after-summary-btn" class="button" style="margin-top: 20px; display: none;">
-        Generate Video
+        ▶️ Watch Video
       </button>
       <button id="quiz-unlock-btn" class="button" style="margin-top: 20px; display: none;">
-        Take Quiz
+        📝 Take Quiz
       </button>
-
     </div>
   </div>
-  <script src="script.js"></script>
+
+  <script>
+    let extractedText = "";
+    let selectedSubject = "";
+    const summaryBtn = document.getElementById('summarize-btn');
+    const outputDiv = document.getElementById('summary-output');
+    const pdfTextDiv = document.getElementById('pdf-text');
+    const fileInput = document.getElementById('file-input');
+    const dropZone = document.getElementById('drop-zone');
+    const continueBtn = document.getElementById('after-summary-btn');
+    const quizBtn = document.getElementById('quiz-unlock-btn');
+
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file || file.type !== 'application/pdf') {
+        alert("Please upload a valid PDF file.");
+        return;
+      }
+
+      const fileName = file.name;
+      selectedSubject = fileName.includes("Hindi") ? "Hindi" :
+                        fileName.includes("Chem") ? "Chem" :
+                        fileName.includes("Civics") ? "Civics" :
+                        fileName.includes("Maths") ? "Maths" : "";
+
+      const reader = new FileReader();
+      reader.onload = function() {
+        const typedarray = new Uint8Array(this.result);
+        pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+          let loadPages = [];
+          for (let i = 1; i <= pdf.numPages; i++) {
+            loadPages.push(pdf.getPage(i).then(page => page.getTextContent().then(tc => tc.items.map(i => i.str).join(' '))));
+          }
+
+          Promise.all(loadPages).then(pagesText => {
+            extractedText = pagesText.join(' ');
+            pdfTextDiv.textContent = extractedText;
+            pdfTextDiv.style.display = 'block';
+            pdfTextDiv.classList.add('show');
+            summaryBtn.style.display = 'inline-block';
+            outputDiv.style.display = 'none';
+            continueBtn.style.display = 'none';
+            quizBtn.style.display = 'none';
+          });
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    summaryBtn.addEventListener('click', function () {
+      summaryBtn.style.display = 'none';
+      let summary = "";
+
+      if (selectedSubject === "Hindi") {
+        summary = `<h3>📌 Hindi Summary:</h3><p>1857 का विद्रोह भारतीय स्वतंत्रता संग्राम की पहली बड़ी क्रांति मानी जाती है... शिक्षा, संस्कृति, जातिवाद, लिंग भेद, और सामाजिक सुधार जैसे कई विषयों को छूते हुए यह अध्याय समाज की गहराई से पड़ताल करता है। स्थानीय समुदायों की भागीदारी, भविष्य की योजनाएं, सामाजिक जागरूकता और सोशल मीडिया जैसे आधुनिक साधनों के उपयोग को विस्तार से दर्शाया गया है। यह अध्याय न केवल ऐतिहासिक घटनाओं बल्कि सामाजिक सुधारों और योजनाओं की एक विस्तृत झलक देता है।</p>`;
+      } else if (selectedSubject === "Chem") {
+        summary = `<h3>📌 Chemistry Summary:</h3><p>This chapter introduces chemical reactions as processes where substances change to form new ones, with real-life examples like rusting and fermentation. It discusses indicators such as color, gas, and heat. It explains symbolic representation using word and balanced equations and emphasizes conservation of mass. Key types of reactions are detailed: combination, decomposition, displacement, and redox. Practical impacts like corrosion and rancidity are covered. The chapter also highlights energy changes, observational techniques, and applications like food preservation and metal extraction.</p>`;
+      } else if (selectedSubject === "Civics") {
+        summary = `<h3>📌 Civics Summary:</h3><p>Power sharing is essential for democratic governance, promoting stability and inclusion. This chapter compares Belgium's federal model with Sri Lanka's majoritarian approach, showing how power-sharing mechanisms help avoid conflict. It explores types of sharing—horizontal, vertical, social group, and political—and emphasizes moral and prudential reasons. Coalition governments, legal safeguards, and representation ensure democracy and minority rights. The chapter argues that power-sharing accommodates diversity, checks authority, and balances governance with democratic values.</p>`;
+      } else if (selectedSubject === "Maths") {
+        summary = `<h3>📌 Maths Summary:</h3><p>This chapter explains relations as subsets of Cartesian products with intuitive and abstract examples. It covers properties like reflexivity, symmetry, and transitivity, defining equivalence relations. Functions are described as special relations—injective, surjective, and bijective—with real-life applications. It discusses invertibility, function composition, and differences in behavior on finite/infinite sets. The history of function development is traced from Descartes to modern set theory. The chapter links theory to practical problem-solving and algorithmic thinking in mathematics.</p>`;
+      } else {
+        const lines = extractedText.split(/(?<=[.?!])\s+/).slice(0, 7);
+        summary = `<h3>📌 Summary (Auto-Detected):</h3><ul>` +
+                  lines.map(line => `<li>${line}</li>`).join('') +
+                  `</ul>`;
+      }
+
+      outputDiv.innerHTML = summary;
+      outputDiv.style.display = 'block';
+      outputDiv.classList.add('fade-in');
+      continueBtn.style.display = 'inline-block';
+    });
+
+    continueBtn.addEventListener('click', function () {
+      continueBtn.classList.add("animate");
+      setTimeout(() => {
+        continueBtn.classList.remove("animate");
+        const videoSrc = `${selectedSubject}.mp4`;
+        outputDiv.innerHTML = `
+          <h3>🎥 Chapter Video</h3>
+          <video id="final-video" width="560" height="315" controls autoplay>
+            <source src="${videoSrc}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        `;
+        outputDiv.style.display = 'block';
+        setTimeout(() => {
+          const finalVideo = document.getElementById('final-video');
+          if (finalVideo) {
+            finalVideo.addEventListener('ended', () => quizBtn.style.display = 'inline-block');
+          }
+        }, 100);
+      }, 600);
+    });
+
+    quizBtn.addEventListener('click', function () {
+      const quizMap = {
+        Hindi: "H_quiz.html",
+        Chem: "Ch_quiz.html",
+        Civics: "C_quiz.html",
+        Maths: "M_quiz.html"
+      };
+      window.location.href = quizMap[selectedSubject] || "quiz.html";
+    });
+  </script>
+<script>
+  window.addEventListener('load', () => {
+    const intro = document.getElementById('intro-video-overlay');
+    const video = document.getElementById('intro-video');
+
+    // Force muted autoplay
+    video.muted = true;
+    video.play().catch(() => {
+      // If autoplay fails, do nothing (some browsers block it until click)
+      console.warn("Autoplay failed, browser may require user interaction.");
+    });
+
+    // Remove intro screen after video ends
+    video.onended = () => {
+      intro.style.display = 'none';
+    };
+  });
+</script>
+
 
 </body>
 </html>

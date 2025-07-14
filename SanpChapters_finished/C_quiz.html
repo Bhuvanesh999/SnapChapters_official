@@ -1,4 +1,126 @@
-// Selecting all required elements
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+  <!-- Start Quiz Button -->
+  <div class="start_btn"><button>Start Quiz</button></div>
+  <!-- Info Box (displayed when the quiz starts) -->
+  <div class="info_box">
+    <div class="info-title"><span>Some Rules of this Quiz</span></div>
+    <div class="info-list">
+      <div class="info">1. You will have only <span>15 seconds</span> per each question.</div>
+      <div class="info">2. Once you select your answer, it can't be undone.</div>
+      <div class="info">3. You can't select any option once time goes off.</div>
+      <div class="info">4. You can't exit from the Quiz while you're playing.</div>
+      <div class="info">5. You'll get points on the basis of your correct answers.</div>
+    </div>
+    <div class="buttons">
+      <button class="quit">Exit Quiz</button>
+      <button class="restart">Continue</button>
+    </div>
+  </div>
+  <!-- Quiz Box (main container for the quiz) -->
+  <div class="quiz_box">
+    <header>
+      <div class="title">Quiz Application</div>
+      <div class="timer">
+        <div class="time_left_txt">Time Left</div>
+        <div class="timer_sec">15</div>
+      </div>
+      <div class="time_line"></div>
+    </header>
+    <section>
+      <div class="que_text">
+        <!-- Question text will be inserted here by JavaScript -->
+      </div>
+      <div class="option_list">
+        <!-- Options will be inserted here by JavaScript -->
+      </div>
+    </section>
+    <!-- Footer of Quiz Box -->
+    <footer>
+      <div class="total_que">
+        <!-- Question count number will be inserted here by JavaScript -->
+      </div>
+      <button class="next_btn">Next</button>
+    </footer>
+  </div>
+  <!-- Result Box (displayed after completing the quiz) -->
+  <div class="result_box">
+    <div class="icon">
+      <i class="fas fa-crown"></i>
+    </div>
+    <div class="complete_text">You've completed the Quiz!</div>
+    <div class="score_text">
+      <!-- Score result will be inserted here by JavaScript -->
+    </div>
+    <div class="buttons">
+      <button class="restart">Replay Quiz</button>
+      <button class="quit">Quit Quiz</button>
+    </div>
+  </div>
+  <script src="js/script.js"></script>
+  <script>
+    const questions = [
+      {
+        numb: 1,
+        question: "Why is power-sharing important?",
+        answer: "It helps to reduce the possibility of conflict",
+        options: [
+          "It increases central power",
+          "It helps to reduce the possibility of conflict",
+          "It avoids elections",
+          "It gives control to one party"
+        ]
+      },
+      {
+        numb: 2,
+        question: "Which country adopted majoritarianism?",
+        answer: "Sri Lanka",
+        options: ["Belgium", "India", "Sri Lanka", "Nepal"]
+      },
+      {
+        numb: 3,
+        question: "What does horizontal power-sharing mean?",
+        answer: "Sharing among legislature, executive, and judiciary",
+        options: [
+          "Sharing between states",
+          "Sharing between countries",
+          "Sharing among legislature, executive, and judiciary",
+          "Power given only to judiciary"
+        ]
+      },
+      {
+        numb: 4,
+        question: "Which principle is used in Belgium to avoid conflict?",
+        answer: "Equal representation to all communities",
+        options: [
+          "Majoritarianism",
+          "Centralized government",
+          "Equal representation to all communities",
+          "Military rule"
+        ]
+      },
+      {
+        numb: 5,
+        question: "What is a coalition government?",
+        answer: "When multiple parties share power",
+        options: [
+          "One-party rule",
+          "Military-run government",
+          "No elections held",
+          "When multiple parties share power"
+        ]
+      }
+    ];
+  </script>
+  <script>
 const startBtn = document.querySelector(".start_btn button");
 const infoBox = document.querySelector(".info_box");
 const exitBtn = infoBox.querySelector(".buttons .quit");
@@ -177,3 +299,6 @@ function queCounter(index) {
 // Tick and cross icons
 const tickIconTag = '<div class="icon tick"><i class="fas fa-check"></i></div>';
 const crossIconTag = '<div class="icon cross"><i class="fas fa-times"></i></div>';
+  </script>
+</body>
+</html>

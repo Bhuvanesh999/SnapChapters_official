@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+  <!-- Start Quiz Button -->
+  <div class="start_btn"><button>Start Quiz</button></div>
+  <!-- Info Box (displayed when the quiz starts) -->
+  <div class="info_box">
+    <div class="info-title"><span>Some Rules of this Quiz</span></div>
+    <div class="info-list">
+      <div class="info">1. You will have only <span>15 seconds</span> per each question.</div>
+      <div class="info">2. Once you select your answer, it can't be undone.</div>
+      <div class="info">3. You can't select any option once time goes off.</div>
+      <div class="info">4. You can't exit from the Quiz while you're playing.</div>
+      <div class="info">5. You'll get points on the basis of your correct answers.</div>
+    </div>
+    <div class="buttons">
+      <button class="quit">Exit Quiz</button>
+      <button class="restart">Continue</button>
+    </div>
+  </div>
+  <!-- Quiz Box (main container for the quiz) -->
+  <div class="quiz_box">
+    <header>
+      <div class="title">Quiz Application</div>
+      <div class="timer">
+        <div class="time_left_txt">Time Left</div>
+        <div class="timer_sec">15</div>
+      </div>
+      <div class="time_line"></div>
+    </header>
+    <section>
+      <div class="que_text">
+        <!-- Question text will be inserted here by JavaScript -->
+      </div>
+      <div class="option_list">
+        <!-- Options will be inserted here by JavaScript -->
+      </div>
+    </section>
+    <!-- Footer of Quiz Box -->
+    <footer>
+      <div class="total_que">
+        <!-- Question count number will be inserted here by JavaScript -->
+      </div>
+      <button class="next_btn">Next</button>
+    </footer>
+  </div>
+  <!-- Result Box (displayed after completing the quiz) -->
+  <div class="result_box">
+    <div class="icon">
+      <i class="fas fa-crown"></i>
+    </div>
+    <div class="complete_text">You've completed the Quiz!</div>
+    <div class="score_text">
+      <!-- Score result will be inserted here by JavaScript -->
+    </div>
+    <div class="buttons">
+      <button class="restart">Replay Quiz</button>
+      <button class="quit">Quit Quiz</button>
+    </div>
+  </div>
+  <script src="js/script.js"></script>
+  <script>
+const questions = [
+  {
+    numb: 1,
+    question: "1857 का विद्रोह किसके खिलाफ था?",
+    answer: "ब्रिटिश शासन",
+    options: ["मुगल शासन", "ब्रिटिश शासन", "पेशवा शासन", "मराठा शासन"]
+  },
+  {
+    numb: 2,
+    question: "शिक्षा का मुख्य उद्देश्य क्या बताया गया है?",
+    answer: "समाज के विकास के लिए",
+    options: [
+      "पैसे कमाने के लिए",
+      "समाज के विकास के लिए",
+      "विदेश जाने के लिए",
+      "करियर बदलने के लिए"
+    ]
+  },
+  {
+    numb: 3,
+    question: "नारी सशक्तिकरण से क्या तात्पर्य है?",
+    answer: "महिलाओं को समान अधिकार देना",
+    options: [
+      "पुरुषों को अधिक अधिकार देना",
+      "महिलाओं को शिक्षा से वंचित रखना",
+      "महिलाओं को समान अधिकार देना",
+      "घरों में काम करवाना"
+    ]
+  },
+  {
+    numb: 4,
+    question: "1857 की क्रांति का एक मुख्य नेता कौन था?",
+    answer: "रानी लक्ष्मीबाई",
+    options: ["अशोक", "रानी लक्ष्मीबाई", "चंद्रगुप्त", "अकबर"]
+  },
+  {
+    numb: 5,
+    question: "जातिवाद किस प्रकार की समस्या है?",
+    answer: "सामाजिक",
+    options: ["आर्थिक", "सामाजिक", "राजनीतिक", "व्यक्तिगत"]
+  }
+];
+  </script>
+  <script>
+const startBtn = document.querySelector(".start_btn button");
+const infoBox = document.querySelector(".info_box");
+const exitBtn = infoBox.querySelector(".buttons .quit");
+const continueBtn = infoBox.querySelector(".buttons .restart");
+const quizBox = document.querySelector(".quiz_box");
+const resultBox = document.querySelector(".result_box");
+const optionList = document.querySelector(".option_list");
+const timeLine = document.querySelector("header .time_line");
+const timeText = document.querySelector(".timer .time_left_txt");
+const timeCount = document.querySelector(".timer .timer_sec");
+let timeValue = 15;
+let queCount = 0;
+let queNumb = 1;
+let userScore = 0;
+let counter;
+let counterLine;
+let widthValue = 0;
+const restartQuizBtn = resultBox.querySelector(".buttons .restart");
+const quitQuizBtn = resultBox.querySelector(".buttons .quit");
+const nextBtn = document.querySelector("footer .next_btn");
+const bottomQuesCounter = document.querySelector("footer .total_que");
+// Show info box when start button is clicked
+startBtn.onclick = () => {
+  infoBox.classList.add("activeInfo");
+}
+// Hide info box when exit button is clicked
+exitBtn.onclick = () => {
+  infoBox.classList.remove("activeInfo");
+}
+// Start quiz when continue button is clicked
+continueBtn.onclick = () => {
+  infoBox.classList.remove("activeInfo");
+  quizBox.classList.add("activeQuiz");
+  initializeQuiz();
+}
+// Restart quiz when restart button is clicked
+restartQuizBtn.onclick = () => {
+  resultBox.classList.remove("activeResult");
+  quizBox.classList.add("activeQuiz");
+  resetQuiz();
+  initializeQuiz();
+}
+// Reload page when quit button is clicked
+quitQuizBtn.onclick = () => {
+window.location.href = "index.html";
+}
+// Show next question when next button is clicked
+nextBtn.onclick = () => {
+  if (queCount < questions.length - 1) {
+    queCount++;
+    queNumb++;
+    updateQuiz();
+  } else {
+    clearInterval(counter);
+    clearInterval(counterLine);
+    showResult();
+  }
+}
+// Initialize the quiz with the first question and timers
+function initializeQuiz() {
+  showQuestions(queCount);
+  queCounter(queNumb);
+  startTimer(timeValue);
+  startTimerLine(widthValue);
+}
+// Reset quiz variables
+function resetQuiz() {
+  timeValue = 15;
+  queCount = 0;
+  queNumb = 1;
+  userScore = 0;
+  widthValue = 0;
+}
+// Update the quiz with the next question and reset timers
+function updateQuiz() {
+  showQuestions(queCount);
+  queCounter(queNumb);
+  clearInterval(counter);
+  clearInterval(counterLine);
+  startTimer(timeValue);
+  startTimerLine(widthValue);
+  timeText.textContent = "Time Left";
+  nextBtn.classList.remove("show");
+}
+// Show questions and options
+function showQuestions(index) {
+  const queText = document.querySelector(".que_text");
+  let queTag = `<span>${questions[index].numb}. ${questions[index].question}</span>`;
+  let optionTag = questions[index].options.map(option => `<div class="option"><span>${option}</span></div>`).join('');
+  queText.innerHTML = queTag;
+  optionList.innerHTML = optionTag;
+  optionList.querySelectorAll(".option").forEach(option => {
+    option.onclick = () => optionSelected(option);
+  });
+}
+// Handle option selection
+function optionSelected(answer) {
+  clearInterval(counter);
+  clearInterval(counterLine);
+  let userAns = answer.textContent;
+  let correctAns = questions[queCount].answer;
+  let allOptions = optionList.children.length;
+  if (userAns === correctAns) {
+    userScore++;
+    answer.classList.add("correct");
+    answer.insertAdjacentHTML("beforeend", tickIconTag);
+  } else {
+    answer.classList.add("incorrect");
+    answer.insertAdjacentHTML("beforeend", crossIconTag);
+    highlightCorrectAnswer(correctAns);
+  }
+  disableOptions();
+  nextBtn.classList.add("show");
+}
+// Highlight the correct answer
+function highlightCorrectAnswer(correctAns) {
+  for (let i = 0; i < optionList.children.length; i++) {
+    if (optionList.children[i].textContent === correctAns) {
+      optionList.children[i].classList.add("correct");
+      optionList.children[i].insertAdjacentHTML("beforeend", tickIconTag);
+    }
+  }
+}
+// Disable all options
+function disableOptions() {
+  for (let i = 0; i < optionList.children.length; i++) {
+    optionList.children[i].classList.add("disabled");
+  }
+}
+// Show result box
+function showResult() {
+  infoBox.classList.remove("activeInfo");
+  quizBox.classList.remove("activeQuiz");
+  resultBox.classList.add("activeResult");
+  const scoreText = resultBox.querySelector(".score_text");
+  let scoreTag = '';
+  if (userScore > 3) {
+    scoreTag = `<span>and congrats! , You got <p>${userScore}</p> out of <p>${questions.length}</p></span>`;
+  } else if (userScore > 1) {
+    scoreTag = `<span>and nice , You got <p>${userScore}</p> out of <p>${questions.length}</p></span>`;
+  } else {
+    scoreTag = `<span>and sorry , You got only <p>${userScore}</p> out of <p>${questions.length}</p></span>`;
+  }
+  scoreText.innerHTML = scoreTag;
+}
+// Start the timer for the quiz
+function startTimer(time) {
+  counter = setInterval(() => {
+    timeCount.textContent = time > 9 ? time : `0${time}`;
+    time--;
+    if (time < 0) {
+      clearInterval(counter);
+      timeText.textContent = "Time Off";
+      highlightCorrectAnswer(questions[queCount].answer);
+      disableOptions();
+      nextBtn.classList.add("show");
+    }
+  }, 1000);
+}
+function startTimerLine(time) {
+  const totalTime = 550; // Total time for the timer in milliseconds
+  counterLine = setInterval(() => {
+    time += 1;
+    let progressPercentage = (time / totalTime) * 100;
+    timeLine.style.width = `${progressPercentage}%`;
+    if (time >= totalTime) {
+      clearInterval(counterLine);
+    }
+  }, 29);
+}
+// Update the question counter
+function queCounter(index) {
+  let totalQueCounTag = `<span><p>${index}</p> of <p>${questions.length}</p> Questions</span>`;
+  bottomQuesCounter.innerHTML = totalQueCounTag;
+}
+// Tick and cross icons
+const tickIconTag = '<div class="icon tick"><i class="fas fa-check"></i></div>';
+const crossIconTag = '<div class="icon cross"><i class="fas fa-times"></i></div>';
+  </script>
+</body>
+</html>
+
+
+<!--
+const questions = [
+  {
+    numb: 1,
+    question: "1857 का विद्रोह किसके खिलाफ था?",
+    answer: "ब्रिटिश शासन",
+    options: ["मुगल शासन", "ब्रिटिश शासन", "पेशवा शासन", "मराठा शासन"]
+  },
+  {
+    numb: 2,
+    question: "शिक्षा का मुख्य उद्देश्य क्या बताया गया है?",
+    answer: "समाज के विकास के लिए",
+    options: [
+      "पैसे कमाने के लिए",
+      "समाज के विकास के लिए",
+      "विदेश जाने के लिए",
+      "करियर बदलने के लिए"
+    ]
+  },
+  {
+    numb: 3,
+    question: "नारी सशक्तिकरण से क्या तात्पर्य है?",
+    answer: "महिलाओं को समान अधिकार देना",
+    options: [
+      "पुरुषों को अधिक अधिकार देना",
+      "महिलाओं को शिक्षा से वंचित रखना",
+      "महिलाओं को समान अधिकार देना",
+      "घरों में काम करवाना"
+    ]
+  },
+  {
+    numb: 4,
+    question: "1857 की क्रांति का एक मुख्य नेता कौन था?",
+    answer: "रानी लक्ष्मीबाई",
+    options: ["अशोक", "रानी लक्ष्मीबाई", "चंद्रगुप्त", "अकबर"]
+  },
+  {
+    numb: 5,
+    question: "जातिवाद किस प्रकार की समस्या है?",
+    answer: "सामाजिक",
+    options: ["आर्थिक", "सामाजिक", "राजनीतिक", "व्यक्तिगत"]
+  }
+];-->
